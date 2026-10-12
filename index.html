@@ -1,0 +1,1150 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>뿌리·줄기 탐구 예측지</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Nanum+Gothic:wght@400;700;800&display=swap">
+<style>
+/* 배치: 밤의 실험실 같은 남청색 배경 위에 밝은 기록 카드가 한 줄로 이어지고, 위쪽 단계 띠가 ①~⑤ 진행을 보여 준다. 대파는 초록, 백합은 보라로 끝까지 구분한다. */
+:root{
+  --night:#17235f; --deep:#0c5b70; --grid:rgba(255,255,255,.055);
+  --on-night:#ffffff; --on-night-soft:#cfe0ff;
+  --paper:#f8fbff; --paper-2:#ebf2fb; --ink:#1b2444; --ink-soft:#55608a; --line:#cbd7ea;
+  --spark:#ffc83d; --spark-ink:#4a3600;
+  --root:#14875a; --root-bg:#e4f6ec; --root-ink:#0b5437;
+  --stem:#6a4be0; --stem-bg:#eeeaff; --stem-ink:#3b2796;
+  --ok:#14875a; --ok-bg:#e4f6ec; --retry:#d96a10; --retry-bg:#fff0e0;
+  --water:#bfe3ff; --dye:#e5463e;
+  --font-display:'Jua','Nanum Gothic','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --font-body:'Nanum Gothic','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+  --r:18px;
+}
+*{box-sizing:border-box}
+body{background:var(--night);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}
+body::before{content:"";position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),linear-gradient(165deg,var(--night) 0%,var(--night) 35%,var(--deep) 100%);
+  background-size:30px 30px,30px 30px,100% 100%}
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;margin:0;text-wrap:balance;line-height:1.25}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--spark);outline-offset:2px}
+
+/* 머리말 */
+.hero{display:flex;flex-direction:column;gap:18px;color:var(--on-night)}
+.hero-top{display:flex;align-items:center;gap:18px}
+.hero-top svg{flex:none;width:92px;height:92px}
+.eyebrow{font-weight:800;font-size:15px;color:var(--spark)}
+.hero h1{font-size:clamp(40px,9vw,60px)}
+.hero .lead{font-size:19px;color:var(--on-night-soft)}
+.who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;background:var(--paper);border-radius:var(--r);padding:16px}
+.who label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:15px;color:var(--ink-soft)}
+
+/* 단계 띠 */
+.track{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin-inline:-16px;padding:10px 16px;background:rgba(18,28,82,.92);overflow-x:auto}
+.track ol{list-style:none;margin:0;padding:0;display:flex;gap:8px;min-width:max-content}
+.track button{display:flex;align-items:center;gap:8px;border:2px solid rgba(255,255,255,.28);background:transparent;color:var(--on-night);border-radius:999px;padding:6px 14px 6px 6px;font-weight:800;font-size:15px}
+.track .n{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.16);font-family:var(--font-display);font-size:18px}
+.track button.done{border-color:var(--spark)}
+.track button.done .n{background:var(--spark);color:var(--spark-ink)}
+
+/* 단계 */
+.step{display:flex;flex-direction:column;gap:16px;scroll-margin-top:76px}
+.step-head{display:flex;align-items:center;gap:14px;color:var(--on-night)}
+.step-head .num{flex:none;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:var(--spark);color:var(--spark-ink);font-family:var(--font-display);font-size:34px}
+.step-head h2{font-size:clamp(26px,6vw,34px)}
+.step-head p{color:var(--on-night-soft);font-size:17px}
+
+.card{background:var(--paper);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:18px}
+.exp{--tone:var(--root);--tone-bg:var(--root-bg);--tone-ink:var(--root-ink)}
+.exp.stem{--tone:var(--stem);--tone-bg:var(--stem-bg);--tone-ink:var(--stem-ink)}
+.tab{align-self:flex-start;background:var(--tone);color:#fff;font-family:var(--font-display);font-size:20px;padding:4px 16px;border-radius:999px}
+.exp h3{font-size:22px;color:var(--tone-ink)}
+.ask{font-weight:800;font-size:18px}
+.note{color:var(--ink-soft);font-size:15px}
+.block{display:flex;flex-direction:column;gap:10px}
+.block + .block{border-top:2px dashed var(--line);padding-top:18px}
+
+.qcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.qcard{background:var(--tone-bg);border:3px solid var(--tone);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:6px}
+.qcard span{font-weight:800;color:var(--tone-ink);font-size:15px}
+.qcard strong{font-family:var(--font-display);font-weight:400;font-size:clamp(22px,5vw,28px);line-height:1.3;color:var(--ink)}
+
+/* 입력 */
+input[type=text],textarea{font:inherit;font-size:18px;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-width:0}
+textarea{min-height:92px;resize:vertical;line-height:1.6}
+input[type=text]:focus,textarea:focus{border-color:var(--tone,var(--stem));outline:none}
+input[type=text]:focus-visible,textarea:focus-visible{outline:3px solid var(--spark);outline-offset:1px}
+.rows{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.row > label, .row > .lab{font-weight:800;min-width:7.2em}
+.row .grow{flex:1 1 220px;min-width:0}
+.cm{display:flex;align-items:center;gap:8px}
+.cm input{width:96px;text-align:center}
+fieldset{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:8px}
+legend{font-weight:800;padding:0;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;display:block}
+.chip input{position:absolute;opacity:0;width:1px;height:1px}
+.chip span{display:block;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 16px;font-size:17px}
+.chip input:checked + span{background:var(--tone-bg);border-color:var(--tone);color:var(--tone-ink);font-weight:800}
+.chip input:focus-visible + span{outline:3px solid var(--spark);outline-offset:2px}
+.check{display:flex;align-items:flex-start;gap:12px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px}
+.check input{flex:none;width:26px;height:26px;margin:1px 0 0;accent-color:var(--tone)}
+.check:has(input:checked){border-color:var(--tone);background:var(--tone-bg)}
+.starters{display:flex;flex-wrap:wrap;gap:8px}
+.starter{background:var(--paper-2);border:2px solid var(--line);border-radius:999px;padding:5px 14px;font-size:15px;font-weight:700}
+
+/* 그림 */
+.fig{margin:0;background:var(--paper-2);border-radius:14px;padding:10px}
+.fig svg{display:block;width:100%;height:auto;max-height:270px}
+.fig figcaption{text-align:center;margin-top:4px}
+.fig text{font-family:var(--font-body);font-weight:800;font-size:22px;fill:var(--ink)}
+
+/* 빈칸 채우기 */
+.fill ol{margin:0;padding-left:1.5em;display:flex;flex-direction:column;gap:12px;font-size:18px}
+.blank{display:inline-block;min-width:5em;min-height:40px;padding:2px 12px;margin:0 2px;border:3px dashed var(--ink-soft);border-radius:10px;background:#fff;font-weight:800;text-align:center;vertical-align:middle}
+.blank.on{border-color:var(--stem);background:var(--stem-bg)}
+.blank.ok{border-style:solid;border-color:var(--ok);background:var(--ok-bg);color:var(--root-ink)}
+.blank.no{border-style:solid;border-color:var(--retry);background:var(--retry-bg);color:var(--retry)}
+.bank{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--paper-2);border-radius:14px;padding:12px}
+.bank b{font-size:15px;color:var(--ink-soft);margin-right:4px}
+.bank button{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:8px 18px;font-weight:800;font-size:18px}
+.fb{min-height:1.6em;font-weight:800;font-size:16px;color:var(--ink-soft)}
+.fb.good{color:var(--ok)} .fb.again{color:var(--retry)}
+
+/* 연결하기 */
+.mgrid{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:clamp(44px,12vw,110px)}
+.mcol{display:flex;flex-direction:column;justify-content:space-around;gap:12px}
+.mcol button{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:12px 10px;font-weight:800;font-size:17px;line-height:1.35;min-height:56px}
+.mcol button.sel{background:var(--spark);border-color:var(--spark-ink)}
+.mcol button.ok{border-color:var(--ok);background:var(--ok-bg)}
+.mcol button.no{border-color:var(--retry);background:var(--retry-bg)}
+.mgrid svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+
+/* 사진 */
+.record{display:grid;grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:16px;align-items:start}
+.photo{display:flex;flex-direction:column;gap:8px}
+.frame{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:4/3;max-width:100%;background:#fff;border:3px dashed var(--tone);border-radius:14px;overflow:hidden;cursor:pointer;text-align:center;padding:10px;color:var(--tone-ink);font-weight:800}
+.frame.has{border-style:solid;padding:0;background:var(--paper-2)}
+.frame img{max-width:100%;max-height:100%;display:block}
+.frame input{position:absolute;opacity:0;width:1px;height:1px}
+.frame:has(input:focus-visible){outline:3px solid var(--spark);outline-offset:2px}
+.frame .plus{display:block;font-family:var(--font-display);font-size:40px;line-height:1}
+.photo-actions{display:flex;gap:8px}
+.mini{background:#fff;border:2px solid var(--line);border-radius:10px;padding:4px 12px;font-size:15px;font-weight:700}
+
+/* 완성하기 */
+.finish{background:var(--paper);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.finish h2{font-size:28px}
+.left-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.left-list button{background:var(--retry-bg);border:2px solid var(--retry);color:var(--retry);border-radius:999px;padding:5px 14px;font-weight:800;font-size:15px}
+.big{background:var(--spark);color:var(--spark-ink);border:3px solid var(--spark-ink);border-radius:16px;padding:14px 26px;font-family:var(--font-display);font-size:24px}
+.big:disabled{opacity:.6;cursor:wait}
+.quiet{background:transparent;border:0;color:var(--ink-soft);text-decoration:underline;font-size:15px;padding:4px 0}
+.confirm{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--retry-bg);border-radius:12px;padding:10px 14px;font-weight:800}
+
+/* 미리보기 창 */
+#modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:20;background:rgba(10,16,52,.82);display:flex;align-items:center;justify-content:center;padding:16px}
+.panel{background:var(--paper);border-radius:var(--r);padding:18px;width:min(720px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px}
+.panel h2{font-size:26px}
+.shot{flex:1 1 auto;min-height:0;overflow:auto;border:2px solid var(--line);border-radius:12px;background:var(--paper-2)}
+.shot img{display:block;width:100%;height:auto}
+.panel-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.panel .big{font-size:20px;padding:10px 20px}
+
+@media (max-width:640px){
+  .who{grid-template-columns:minmax(0,1fr)}
+  .qcards{grid-template-columns:minmax(0,1fr)}
+  .record{grid-template-columns:minmax(0,1fr)}
+  .card{padding:16px}
+  .hero-top svg{width:68px;height:68px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+/* ===== 과학 탐험 테마 ===== */
+body::before{background-image:radial-gradient(circle at 88% 6%,rgba(255,200,61,.30),transparent 26%),radial-gradient(circle at 6% 92%,rgba(92,194,107,.28),transparent 30%),radial-gradient(circle at 92% 70%,rgba(106,75,224,.30),transparent 28%),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),linear-gradient(165deg,var(--night) 0%,var(--night) 35%,var(--deep) 100%)!important;
+  background-size:100% 100%,100% 100%,100% 100%,30px 30px,30px 30px,100% 100%!important}
+body::after{content:"";position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22520%22%20height%3D%22520%22%20viewBox%3D%220%200%20520%20520%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.11%22%3E%0A%3Cpath%20d%3D%22M48%2040%20h40%20M56%2040%20v34%20l-18%2046%20q-4%2010%208%2010%20h48%20q12%200%208-10%20l-18-46%20v-34%22%2F%3E%3Cpath%20d%3D%22M44%20104%20h60%22%2F%3E%3Ccircle%20cx%3D%2262%22%20cy%3D%22116%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%2280%22%20cy%3D%22110%22%20r%3D%222%22%2F%3E%0A%3Cpath%20d%3D%22M318%2036%20v40%20q0%2014%2014%2014%20q14%200%2014-14%20v-40%20M312%2036%20h40%20M318%2062%20h28%22%2F%3E%0A%3Ccircle%20cx%3D%22200%22%20cy%3D%22230%22%20r%3D%2226%22%2F%3E%3Cpath%20d%3D%22M219%20249%20l28%2028%22%2F%3E%0A%3Cpath%20d%3D%22M420%20300%20v-46%20M420%20272%20q-26%20-6%20-30%20-30%20q24%202%2030%2030%20M420%20262%20q22%20-16%2040%20-8%20q-10%2022%20-40%208%22%2F%3E%3Cpath%20d%3D%22M396%20302%20h48%22%2F%3E%0A%3Cpath%20d%3D%22M96%20380%20q-18%2026%20-18%2038%20a18%2018%200%200%200%2036%200%20q0%20-12%20-18%20-38z%22%2F%3E%0A%3Cellipse%20cx%3D%22330%22%20cy%3D%22440%22%20rx%3D%2234%22%20ry%3D%2212%22%2F%3E%3Cellipse%20cx%3D%22330%22%20cy%3D%22440%22%20rx%3D%2234%22%20ry%3D%2212%22%20transform%3D%22rotate%2860%20330%20440%29%22%2F%3E%3Cellipse%20cx%3D%22330%22%20cy%3D%22440%22%20rx%3D%2234%22%20ry%3D%2212%22%20transform%3D%22rotate%28-60%20330%20440%29%22%2F%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%22440%22%20r%3D%223%22%2F%3E%0A%3Cpath%20d%3D%22M240%20120%20q30%20-40%2070%20-20%20q-20%2044%20-70%2020z%20M240%20120%20q30%20-10%2054%20-16%22%2F%3E%0A%3Cpath%20d%3D%22M470%20140%20l6%2014%20l14%206%20l-14%206%20l-6%2014%20l-6%20-14%20l-14%20-6%20l14%20-6z%22%2F%3E%0A%3Cpath%20d%3D%22M160%20470%20l4%209%20l9%204%20l-9%204%20l-4%209%20l-4%20-9%20l-9%20-4%20l9%20-4z%22%2F%3E%0A%3Cpath%20d%3D%22M30%20230%20q10%20-10%2020%200%20t20%200%20t20%200%22%2F%3E%0A%3Ccircle%20cx%3D%22470%22%20cy%3D%22470%22%20r%3D%225%22%2F%3E%3Ccircle%20cx%3D%22252%22%20cy%3D%22372%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%22140%22%20cy%3D%22160%22%20r%3D%224%22%2F%3E%0A%3Cpath%20d%3D%22M500%2030%20l-14%2024%20h28z%22%2F%3E%0A%3C%2Fg%3E%3C%2Fsvg%3E");background-size:520px 520px}
+body{counter-reset:mission}
+.hero .hero-top{align-items:flex-end}
+.hero .mascot{flex:none;width:118px;height:126px;filter:drop-shadow(0 6px 0 rgba(0,0,0,.18))}
+.hero .mascot{animation:bob 3.2s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}
+.hero h1{text-shadow:0 4px 0 rgba(0,0,0,.25)}
+.bubble{position:relative;align-self:flex-start;max-width:100%;background:var(--spark);color:var(--spark-ink);font-family:var(--font-display);font-size:clamp(20px,4.6vw,26px);line-height:1.35;padding:12px 20px;border-radius:20px;margin-left:24px}
+.bubble::before{content:"";position:absolute;left:-12px;top:-14px;border:14px solid transparent;border-bottom-color:var(--spark);border-left-width:0;transform:rotate(-20deg)}
+.bubble b{font-weight:400;color:#7a2d00}
+.who{position:relative;padding-top:50px!important;border:3px solid var(--spark);box-shadow:0 8px 0 rgba(0,0,0,.18)}
+.who::before{content:"꼬마 과학자 연구원증";position:absolute;top:0;left:0;right:0;height:38px;display:flex;align-items:center;padding-left:18px;border-radius:15px 15px 0 0;background:repeating-linear-gradient(-45deg,var(--spark) 0 14px,#ffd666 14px 28px);color:var(--spark-ink);font-family:var(--font-display);font-size:19px;letter-spacing:.04em}
+.who::after{content:"";position:absolute;top:12px;right:18px;width:46px;height:14px;border-radius:999px;background:var(--night);opacity:.85}
+.track ol{position:relative}
+.track li{position:relative}
+.track li + li::before{content:"";position:absolute;left:-9px;top:50%;width:10px;border-top:3px dotted rgba(255,255,255,.45)}
+.step{counter-increment:mission;position:relative}
+.step-head h2::before{content:"미션 " counter(mission);display:block;width:max-content;margin-bottom:4px;padding:1px 12px;border-radius:999px;background:rgba(255,255,255,.14);color:var(--spark);font-family:var(--font-body);font-weight:800;font-size:15px;letter-spacing:.06em}
+.step-head .num{box-shadow:0 0 0 6px rgba(255,200,61,.25),0 6px 0 rgba(0,0,0,.2);border-radius:18px!important;transform:rotate(-6deg)}
+.step-head{position:relative}
+.step.done .step-head::after{content:"완료!";position:absolute;right:4px;top:50%;transform:translateY(-50%) rotate(-10deg);border:4px solid var(--spark);color:var(--spark);font-family:var(--font-display);font-size:24px;padding:2px 14px;border-radius:12px;background:rgba(23,35,95,.6);animation:stamp .35s ease-out}
+@keyframes stamp{0%{transform:translateY(-50%) rotate(-10deg) scale(1.8);opacity:0}100%{transform:translateY(-50%) rotate(-10deg) scale(1);opacity:1}}
+.card{position:relative;box-shadow:0 10px 0 rgba(0,0,0,.16);background-image:linear-gradient(90deg,transparent 0,transparent 100%)}
+.card::before{content:"";position:absolute;top:-11px;left:50%;width:96px;height:24px;transform:translateX(-50%) rotate(-3deg);background:rgba(255,200,61,.78);border-radius:3px;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.card.stem::before,.card.exp.stem::before{background:rgba(190,176,255,.85)}
+.card.root::before,.card.exp.root::before{background:rgba(150,224,170,.9)}
+.qcard{box-shadow:0 8px 0 rgba(0,0,0,.16)}
+.finish{position:relative;box-shadow:0 10px 0 rgba(0,0,0,.16);border:3px dashed var(--line)}
+.finish.all{border:3px solid var(--spark);background:linear-gradient(160deg,#fffbe8,var(--paper) 60%)}
+
+.big{box-shadow:0 6px 0 var(--spark-ink);transition:transform .1s,box-shadow .1s}
+.big:active{transform:translateY(4px);box-shadow:0 2px 0 var(--spark-ink)}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;z-index:30;pointer-events:none}
+@media (max-width:640px){
+  .hero .mascot{width:88px;height:94px}
+  .bubble{margin-left:12px}
+  .step.done .step-head::after{font-size:18px;padding:2px 10px;top:-6px;transform:rotate(-10deg)}
+  @keyframes stamp{0%{transform:rotate(-10deg) scale(1.8);opacity:0}100%{transform:rotate(-10deg) scale(1);opacity:1}}
+}
+@media (prefers-reduced-motion:reduce){.hero .mascot,.step.done .step-head::after{animation:none}}
+</style>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<form id="f" class="wrap" novalidate autocomplete="off">
+
+  <header class="hero">
+    <div class="hero-top">
+      <svg class="mascot" viewBox="0 0 160 170" aria-hidden="true">
+  <path d="M80 44 V30" stroke="#2f9459" stroke-width="6" stroke-linecap="round"/>
+  <path d="M80 32 Q56 30 46 8 Q72 6 80 32Z" fill="#5cc26b"/><path d="M80 32 Q102 26 116 6 Q90 2 80 32Z" fill="#3aa866"/>
+  <path d="M42 142 Q44 118 80 116 Q116 118 118 142 L122 166 H38Z" fill="#ffffff"/>
+  <path d="M80 116 L70 136 L80 166 L90 136Z" fill="#dfe8f7"/><circle cx="62" cy="146" r="3" fill="#9aa8c4"/><circle cx="62" cy="158" r="3" fill="#9aa8c4"/>
+  <circle cx="80" cy="82" r="44" fill="#b8e986"/>
+  <path d="M38 76 Q80 62 122 76" stroke="#1b2444" stroke-width="7" fill="none"/>
+  <circle cx="62" cy="78" r="15" fill="#e6f6ff" stroke="#1b2444" stroke-width="5"/><circle cx="98" cy="78" r="15" fill="#e6f6ff" stroke="#1b2444" stroke-width="5"/>
+  <circle cx="64" cy="80" r="5" fill="#1b2444"/><circle cx="100" cy="80" r="5" fill="#1b2444"/><circle cx="66" cy="78" r="1.8" fill="#fff"/><circle cx="102" cy="78" r="1.8" fill="#fff"/>
+  <circle cx="52" cy="102" r="6" fill="#ff9fb5" opacity=".7"/><circle cx="108" cy="102" r="6" fill="#ff9fb5" opacity=".7"/>
+  <path d="M68 104 Q80 114 92 104" stroke="#1b2444" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="136" cy="124" r="15" fill="#e9f6ff" fill-opacity=".85" stroke="#ffc83d" stroke-width="6"/><path d="M126 136 L112 152" stroke="#ffc83d" stroke-width="8" stroke-linecap="round"/>
+  <path d="M116 132 Q122 140 114 150" stroke="#b8e986" stroke-width="10" stroke-linecap="round" fill="none"/>
+</svg>
+      <div>
+        <p class="eyebrow">과학 · 식물의 구조와 기능</p>
+        <h1>탐구 예측지</h1>
+      </div>
+    </div>
+    <p class="bubble">오늘의 미션! <b>대파</b>와 <b>백합</b>의 비밀을 예측해 봐요.</p>
+    <div class="who">
+      <label for="school">학교<input type="text" id="school" name="school" placeholder="학교 이름"></label>
+      <label for="who">이름<input type="text" id="who" name="who" placeholder="내 이름"></label>
+      <label for="day">날짜<input type="text" id="day" name="day"></label>
+    </div>
+  </header>
+
+  <nav class="track" aria-label="탐구 단계">
+    <ol>
+      <li><button type="button" data-go="sec-q"><span class="n">1</span>탐구 질문</button></li>
+      <li><button type="button" data-go="sec-s"><span class="n">2</span>실험 상황</button></li>
+      <li><button type="button" data-go="sec-p"><span class="n">3</span>나의 예측</button></li>
+      <li><button type="button" data-go="sec-w"><span class="n">4</span>예측한 이유</button></li>
+      <li><button type="button" data-go="sec-c"><span class="n">5</span>실험 후 확인할 점</button></li>
+    </ol>
+  </nav>
+
+  <!-- ① 탐구 질문 -->
+  <section class="step" id="sec-q">
+    <div class="step-head"><span class="num">1</span><div><h2>오늘의 탐구 질문</h2><p>무엇을 알아보기 위한 실험일까요?</p></div></div>
+    <div class="qcards">
+      <div class="qcard exp root"><span>탐구 질문 1</span><strong>뿌리는 식물에서 어떤 일을 할까?</strong></div>
+      <div class="qcard exp stem"><span>탐구 질문 2</span><strong>줄기는 식물에서 어떤 일을 할까?</strong></div>
+    </div>
+    <div class="card">
+      <p class="ask">어떤 실험으로 알아볼까요? 알맞게 선으로 이어 보세요.</p>
+      <p class="note">왼쪽 칸을 누른 다음, 오른쪽 칸을 누르면 선이 이어져요.</p>
+      <div data-match="m0">
+        <div class="mgrid">
+          <div class="mcol mleft">
+            <button type="button" data-id="root">대파 실험</button>
+            <button type="button" data-id="stem">백합 실험</button>
+          </div>
+          <div class="mcol mright">
+            <button type="button" data-id="stem">줄기는 어떤 일을 할까?</button>
+            <button type="button" data-id="root">뿌리는 어떤 일을 할까?</button>
+          </div>
+          <svg aria-hidden="true"></svg>
+        </div>
+        <p class="fb" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ② 실험 상황 -->
+  <section class="step" id="sec-s">
+    <div class="step-head"><span class="num">2</span><div><h2>실험 상황</h2><p>어떤 실험을 하는지 알아봐요.</p></div></div>
+
+    <div class="card exp root">
+      <span class="tab">대파 뿌리 실험</span>
+      <figure class="fig">
+        <svg viewBox="0 0 520 256" role="img" aria-label="물이 든 컵 두 개. 왼쪽 컵에는 뿌리가 있는 대파, 오른쪽 컵에는 뿌리를 자른 대파가 들어 있다.">
+          <defs>
+            <g id="pa">
+              <line x1="0" y1="112" x2="-22" y2="14" stroke="#3aa866" stroke-width="13" stroke-linecap="round"/>
+              <line x1="0" y1="112" x2="22" y2="14" stroke="#3aa866" stroke-width="13" stroke-linecap="round"/>
+              <line x1="0" y1="112" x2="0" y2="8" stroke="#2f9459" stroke-width="13" stroke-linecap="round"/>
+              <rect x="-11" y="104" width="22" height="88" rx="6" fill="#f6fbe9" stroke="#8fbf9c" stroke-width="2"/>
+            </g>
+            <g id="cup">
+              <rect x="-70" y="128" width="140" height="90" fill="#bfe3ff" fill-opacity=".6"/>
+              <path d="M-72 88 L-72 210 Q-72 220 -62 220 L62 220 Q72 220 72 210 L72 88" fill="none" stroke="#1b2444" stroke-width="4" stroke-linecap="round"/>
+              <line x1="-70" y1="128" x2="-40" y2="128" stroke="#e5463e" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </defs>
+          <g transform="translate(140,0)">
+            <use href="#pa"/>
+            <g stroke="#b28444" stroke-width="2.5" stroke-linecap="round" fill="none">
+              <path d="M-8 192 Q-16 204 -20 214"/><path d="M-4 192 Q-8 206 -9 215"/><path d="M0 192 L0 216"/><path d="M4 192 Q8 206 9 215"/><path d="M8 192 Q16 204 20 214"/>
+            </g>
+            <use href="#cup"/>
+            <text x="0" y="248" text-anchor="middle">뿌리가 있는 대파</text>
+          </g>
+          <g transform="translate(380,0)">
+            <use href="#pa"/>
+            <use href="#cup"/>
+            <text x="0" y="248" text-anchor="middle">뿌리를 자른 대파</text>
+          </g>
+        </svg>
+        <figcaption class="note">빨간 선은 유성펜으로 표시한 처음 물의 높이예요.</figcaption>
+      </figure>
+
+      <div class="block fill" data-fill="f1">
+        <h3>실험 방법</h3>
+        <p class="note">빈칸을 채워 실험 방법을 완성해 보세요. 아래 낱말을 누르면 색칠된 빈칸에 들어가요.</p>
+        <ol>
+          <li>대파 2개 중 1개만 <button type="button" class="blank" data-a="뿌리"></button>를 잘라요.</li>
+          <li>컵 2개에 <button type="button" class="blank" data-a="같은"></button> 양의 물을 넣고, 대파를 하나씩 넣어요.</li>
+          <li>처음 물의 높이를 <button type="button" class="blank" data-a="유성펜"></button>으로 표시해요.</li>
+          <li><button type="button" class="blank" data-a="햇빛"></button>이 잘 비치는 곳에 두고, 물의 양이 어떻게 변하는지 살펴봐요.</li>
+        </ol>
+        <div class="bank"><b>낱말</b>
+          <button type="button" data-w="햇빛">햇빛</button>
+          <button type="button" data-w="뿌리">뿌리</button>
+          <button type="button" data-w="유성펜">유성펜</button>
+          <button type="button" data-w="같은">같은</button>
+        </div>
+        <p class="fb" aria-live="polite"></p>
+      </div>
+
+      <div class="block">
+        <h3>처음 모습 기록하기</h3>
+        <div class="record">
+          <div class="photo" data-photo="root">
+            <label class="frame" for="ph_root">
+              <input type="file" id="ph_root" accept="image/*">
+              <span class="ph-empty"><span class="plus">+</span>처음 대파 사진 넣기</span>
+              <img alt="처음 대파의 모습" hidden>
+            </label>
+            <div class="photo-actions" hidden><button type="button" class="mini ph-del">사진 지우기</button></div>
+            <p class="fb again ph-msg" aria-live="polite" hidden></p>
+          </div>
+          <div class="rows">
+            <div class="row"><label for="r_len">대파의 길이</label><span class="cm"><input type="text" inputmode="decimal" id="r_len" name="r_len"> cm</span></div>
+            <div class="row"><label for="r_rootlen">뿌리의 길이</label><span class="cm"><input type="text" inputmode="decimal" id="r_rootlen" name="r_rootlen"> cm</span></div>
+            <div class="row"><label for="r_shape">뿌리의 생김새</label><input class="grow" type="text" id="r_shape" name="r_shape" placeholder="뿌리를 잘 보고 써 보세요"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card exp stem">
+      <span class="tab">백합 줄기 실험</span>
+      <figure class="fig">
+        <svg viewBox="0 0 520 262" role="img" aria-label="삼각 플라스크 두 개. 왼쪽에는 물, 오른쪽에는 붉은 색소 물이 들어 있고 백합이 한 송이씩 꽂혀 있다.">
+          <defs>
+            <g id="lily">
+              <line x1="0" y1="216" x2="0" y2="60" stroke="#3d9b5f" stroke-width="7" stroke-linecap="round"/>
+              <ellipse cx="-17" cy="120" rx="18" ry="6" fill="#3d9b5f" transform="rotate(28 -17 120)"/>
+              <ellipse cx="17" cy="100" rx="18" ry="6" fill="#3d9b5f" transform="rotate(-28 17 100)"/>
+              <g transform="translate(0,50)" fill="#ffffff" stroke="#b9c2d8" stroke-width="2">
+                <ellipse cx="0" cy="-20" rx="10" ry="22"/>
+                <ellipse cx="0" cy="-20" rx="10" ry="22" transform="rotate(60)"/>
+                <ellipse cx="0" cy="-20" rx="10" ry="22" transform="rotate(120)"/>
+                <ellipse cx="0" cy="-20" rx="10" ry="22" transform="rotate(180)"/>
+                <ellipse cx="0" cy="-20" rx="10" ry="22" transform="rotate(240)"/>
+                <ellipse cx="0" cy="-20" rx="10" ry="22" transform="rotate(300)"/>
+                <circle cx="0" cy="0" r="7" fill="#ffc83d" stroke="none"/>
+              </g>
+            </g>
+            <path id="flask" d="M-14 132 L-14 158 L-58 220 Q-64 230 -52 230 L52 230 Q64 230 58 220 L14 158 L14 132" fill="none" stroke="#1b2444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </defs>
+          <g transform="translate(140,0)">
+            <polygon points="-36,188 36,188 57,220 54,228 -54,228 -57,220" fill="#bfe3ff"/>
+            <use href="#lily"/>
+            <use href="#flask"/>
+            <text x="0" y="255" text-anchor="middle">물</text>
+          </g>
+          <g transform="translate(380,0)">
+            <polygon points="-36,188 36,188 57,220 54,228 -54,228 -57,220" fill="#e5463e"/>
+            <use href="#lily"/>
+            <use href="#flask"/>
+            <text x="0" y="255" text-anchor="middle">붉은 색소 물</text>
+          </g>
+        </svg>
+      </figure>
+
+      <div class="block fill">
+        <h3>실험 방법</h3>
+        <ol>
+          <li>백합 한 송이는 물에, 다른 한 송이는 붉은 색소 물에 꽂아요.</li>
+          <li>시간이 지나면서 백합 꽃이 어떻게 변하는지 살펴봐요.</li>
+          <li>줄기를 잘라서 자른 면을 돋보기로 살펴봐요.</li>
+        </ol>
+      </div>
+
+      <div class="block" data-match="m2">
+        <p class="ask">실험에서 어떻게 쓰일까요? 알맞게 선으로 이어 보세요.</p>
+        <div class="mgrid">
+          <div class="mcol mleft">
+            <button type="button" data-id="dye">붉은 색소 물</button>
+            <button type="button" data-id="knife">안전 칼</button>
+            <button type="button" data-id="lens">돋보기</button>
+          </div>
+          <div class="mcol mright">
+            <button type="button" data-id="knife">줄기를 자를 때 써요</button>
+            <button type="button" data-id="lens">자른 면을 자세히 볼 때 써요</button>
+            <button type="button" data-id="dye">백합을 꽂아 두어요</button>
+          </div>
+          <svg aria-hidden="true"></svg>
+        </div>
+        <p class="fb" aria-live="polite"></p>
+      </div>
+
+      <div class="block">
+        <h3>처음 모습 기록하기</h3>
+        <div class="record">
+          <div class="photo" data-photo="stem">
+            <label class="frame" for="ph_stem">
+              <input type="file" id="ph_stem" accept="image/*">
+              <span class="ph-empty"><span class="plus">+</span>처음 백합 사진 넣기</span>
+              <img alt="처음 백합의 모습" hidden>
+            </label>
+            <div class="photo-actions" hidden><button type="button" class="mini ph-del">사진 지우기</button></div>
+            <p class="fb again ph-msg" aria-live="polite" hidden></p>
+          </div>
+          <div class="rows">
+            <div class="row"><label for="l_color">꽃의 색깔</label><input class="grow" type="text" id="l_color" name="l_color" placeholder="예) 흰색"></div>
+            <fieldset>
+              <legend>꽃의 모양</legend>
+              <div class="chips">
+                <label class="chip"><input type="radio" id="l_bloom_1" name="l_bloom" value="활짝 피었어요"><span>활짝 피었어요</span></label>
+                <label class="chip"><input type="radio" id="l_bloom_2" name="l_bloom" value="조금 피었어요"><span>조금 피었어요</span></label>
+                <label class="chip"><input type="radio" id="l_bloom_3" name="l_bloom" value="아직 봉오리예요"><span>아직 봉오리예요</span></label>
+              </div>
+            </fieldset>
+            <div class="row"><label for="l_stem">줄기의 생김새</label><input class="grow" type="text" id="l_stem" name="l_stem" placeholder="줄기를 잘 보고 써 보세요"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 나의 예측 -->
+  <section class="step" id="sec-p">
+    <div class="step-head"><span class="num">3</span><div><h2>나의 예측</h2><p>정답은 없어요. 내 생각대로 골라 보세요.</p></div></div>
+
+    <div class="card exp root">
+      <span class="tab">대파 뿌리 실험</span>
+      <p class="ask">시간이 지나면 컵 속의 물은 어떻게 될까요?</p>
+      <fieldset>
+        <legend>뿌리가 있는 대파 컵의 물은</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" id="p_r_with_1" name="p_r_with" value="줄어들 것이다"><span>줄어들 것이다</span></label>
+          <label class="chip"><input type="radio" id="p_r_with_2" name="p_r_with" value="그대로일 것이다"><span>그대로일 것이다</span></label>
+          <label class="chip"><input type="radio" id="p_r_with_3" name="p_r_with" value="많아질 것이다"><span>많아질 것이다</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>뿌리를 자른 대파 컵의 물은</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" id="p_r_cut_1" name="p_r_cut" value="줄어들 것이다"><span>줄어들 것이다</span></label>
+          <label class="chip"><input type="radio" id="p_r_cut_2" name="p_r_cut" value="그대로일 것이다"><span>그대로일 것이다</span></label>
+          <label class="chip"><input type="radio" id="p_r_cut_3" name="p_r_cut" value="많아질 것이다"><span>많아질 것이다</span></label>
+        </div>
+      </fieldset>
+      <div class="block">
+        <label class="ask" for="p_r_text">나의 예측을 한 문장으로 써 보세요.</label>
+        <textarea id="p_r_text" name="p_r_text" placeholder="두 컵의 물이 어떻게 될지 써 보세요"></textarea>
+      </div>
+    </div>
+
+    <div class="card exp stem">
+      <span class="tab">백합 줄기 실험</span>
+      <p class="ask">시간이 지나면 백합 꽃은 어떻게 될까요?</p>
+      <fieldset>
+        <legend>붉은 색소 물에 꽂은 백합 꽃은</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" id="p_l_red_1" name="p_l_red" value="붉게 변할 것이다"><span>붉게 변할 것이다</span></label>
+          <label class="chip"><input type="radio" id="p_l_red_2" name="p_l_red" value="색깔이 그대로일 것이다"><span>색깔이 그대로일 것이다</span></label>
+          <label class="chip"><input type="radio" id="p_l_red_3" name="p_l_red" value="다른 색으로 변할 것이다"><span>다른 색으로 변할 것이다</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>물에 꽂은 백합 꽃은</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" id="p_l_water_1" name="p_l_water" value="붉게 변할 것이다"><span>붉게 변할 것이다</span></label>
+          <label class="chip"><input type="radio" id="p_l_water_2" name="p_l_water" value="색깔이 그대로일 것이다"><span>색깔이 그대로일 것이다</span></label>
+          <label class="chip"><input type="radio" id="p_l_water_3" name="p_l_water" value="다른 색으로 변할 것이다"><span>다른 색으로 변할 것이다</span></label>
+        </div>
+      </fieldset>
+      <div class="block">
+        <label class="ask" for="p_l_text">나의 예측을 한 문장으로 써 보세요.</label>
+        <textarea id="p_l_text" name="p_l_text" placeholder="백합 꽃이 어떻게 될지 써 보세요"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ 예측한 이유 -->
+  <section class="step" id="sec-w">
+    <div class="step-head"><span class="num">4</span><div><h2>예측한 이유</h2><p>왜 그렇게 생각했나요?</p></div></div>
+
+    <div class="card exp root">
+      <span class="tab">대파 뿌리 실험</span>
+      <label class="ask" for="w_r">컵 속의 물이 그렇게 될 것이라고 생각한 이유를 써 보세요.</label>
+      <div class="starters" aria-label="문장 시작 도우미">
+        <button type="button" class="starter" data-for="w_r" data-t="왜냐하면 ">왜냐하면 …</button>
+        <button type="button" class="starter" data-for="w_r" data-t="내 생각에는 ">내 생각에는 …</button>
+        <button type="button" class="starter" data-for="w_r" data-t="전에 본 적이 있는데 ">전에 본 적이 있는데 …</button>
+      </div>
+      <textarea id="w_r" name="w_r" placeholder="위의 말을 눌러서 시작해도 좋아요"></textarea>
+    </div>
+
+    <div class="card exp stem">
+      <span class="tab">백합 줄기 실험</span>
+      <label class="ask" for="w_l">백합 꽃이 그렇게 될 것이라고 생각한 이유를 써 보세요.</label>
+      <div class="starters" aria-label="문장 시작 도우미">
+        <button type="button" class="starter" data-for="w_l" data-t="왜냐하면 ">왜냐하면 …</button>
+        <button type="button" class="starter" data-for="w_l" data-t="내 생각에는 ">내 생각에는 …</button>
+        <button type="button" class="starter" data-for="w_l" data-t="전에 본 적이 있는데 ">전에 본 적이 있는데 …</button>
+      </div>
+      <textarea id="w_l" name="w_l" placeholder="위의 말을 눌러서 시작해도 좋아요"></textarea>
+    </div>
+  </section>
+
+  <!-- ⑤ 실험 후 확인할 점 -->
+  <section class="step" id="sec-c">
+    <div class="step-head"><span class="num">5</span><div><h2>실험 후 확인할 점</h2><p>실험이 끝나면 무엇을 살펴볼지 골라 보세요.</p></div></div>
+
+    <div class="card exp root">
+      <span class="tab">대파 뿌리 실험</span>
+      <label class="check" for="c_r_1"><input type="checkbox" id="c_r_1" name="c_r_1"><span>컵의 물이 처음 표시한 선보다 얼마나 내려갔는지 확인하기</span></label>
+      <label class="check" for="c_r_2"><input type="checkbox" id="c_r_2" name="c_r_2"><span>어느 컵의 물이 더 많이 줄었는지 비교하기</span></label>
+      <label class="check" for="c_r_3"><input type="checkbox" id="c_r_3" name="c_r_3"><span>나의 예측과 실험 결과가 같은지 비교하기</span></label>
+      <div class="row"><label for="c_r_own">내가 더 확인하고 싶은 것</label><input class="grow" type="text" id="c_r_own" name="c_r_own" placeholder="쓰고 싶으면 써 보세요"></div>
+    </div>
+
+    <div class="card exp stem">
+      <span class="tab">백합 줄기 실험</span>
+      <label class="check" for="c_l_1"><input type="checkbox" id="c_l_1" name="c_l_1"><span>백합 꽃의 색깔이 변했는지 확인하기</span></label>
+      <label class="check" for="c_l_2"><input type="checkbox" id="c_l_2" name="c_l_2"><span>줄기를 자른 면에 무엇이 보이는지 살펴보기</span></label>
+      <label class="check" for="c_l_3"><input type="checkbox" id="c_l_3" name="c_l_3"><span>나의 예측과 실험 결과가 같은지 비교하기</span></label>
+      <div class="row"><label for="c_l_own">내가 더 확인하고 싶은 것</label><input class="grow" type="text" id="c_l_own" name="c_l_own" placeholder="쓰고 싶으면 써 보세요"></div>
+    </div>
+  </section>
+
+  <section class="finish" aria-labelledby="fin-h">
+    <h2 id="fin-h">나의 탐구 예측지 완성하기</h2>
+    <p id="leftMsg"></p>
+    <ul class="left-list" id="leftList"></ul>
+    <button type="button" class="big" id="make">이미지로 만들기</button>
+    <p class="fb again" id="makeMsg" aria-live="polite" hidden></p>
+    <button type="button" class="quiet" id="reset">처음부터 다시 쓰기</button>
+    <div class="confirm" id="resetConfirm" hidden>
+      <span>쓴 내용과 사진이 모두 지워져요. 지울까요?</span>
+      <button type="button" class="mini" id="resetYes">네, 지울게요</button>
+      <button type="button" class="mini" id="resetNo">아니요</button>
+    </div>
+  </section>
+
+</form>
+
+<div id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-h">
+  <div class="panel">
+    <h2 id="modal-h">나의 탐구 예측지</h2>
+    <div class="shot"><img id="shot" alt="완성한 탐구 예측지 이미지"></div>
+    <div class="panel-actions">
+      <button type="button" class="big" id="save">이미지 저장하기</button>
+      <button type="button" class="mini" id="close">닫기</button>
+    </div>
+    <p class="fb" id="saveMsg" aria-live="polite">저장이 안 되면 그림을 길게 누르거나 마우스 오른쪽 버튼을 눌러 저장할 수 있어요.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var KEY='tamgu-yecheuk-v1';
+var form=document.getElementById('f');
+var S={form:{},fill:{},match:{},photo:{root:'',stem:''}};
+var repaint=[];
+var $=function(id){return document.getElementById(id)};
+form.addEventListener('submit',function(e){e.preventDefault()});
+
+/* ---------- 저장 · 불러오기 ---------- */
+function readForm(){
+  var o={};
+  Array.prototype.forEach.call(form.elements,function(el){
+    if(!el.name) return;
+    if(el.type==='radio'){ if(el.checked) o[el.name]=el.value; }
+    else if(el.type==='checkbox'){ o[el.name]=el.checked; }
+    else o[el.name]=el.value;
+  });
+  return o;
+}
+function writeForm(o){
+  Array.prototype.forEach.call(form.elements,function(el){
+    if(!el.name) return;
+    if(el.type==='radio') el.checked=(o[el.name]===el.value);
+    else if(el.type==='checkbox') el.checked=!!o[el.name];
+    else el.value=(o[el.name]==null?'':o[el.name]);
+  });
+}
+function store(){
+  S.form=readForm();
+  try{ localStorage.setItem(KEY,JSON.stringify(S)); }
+  catch(e){
+    try{ localStorage.setItem(KEY,JSON.stringify({form:S.form,fill:S.fill,match:S.match,photo:{root:'',stem:''}})); }catch(e2){}
+  }
+}
+var timer=null;
+function changed(){ updateProgress(); clearTimeout(timer); timer=setTimeout(store,300); }
+function today(){ var d=new Date(); return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일'; }
+try{
+  var raw=localStorage.getItem(KEY);
+  if(raw){ var old=JSON.parse(raw);
+    if(old&&typeof old==='object'){
+      S.form=old.form||{}; S.fill=old.fill||{}; S.match=old.match||{};
+      S.photo={root:(old.photo&&old.photo.root)||'',stem:(old.photo&&old.photo.stem)||''};
+    }
+  }
+}catch(e){}
+writeForm(S.form);
+if(!$('day').value) $('day').value=today();
+form.addEventListener('input',changed);
+form.addEventListener('change',changed);
+
+/* ---------- 단계 띠 ---------- */
+document.querySelectorAll('[data-go]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var smooth=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+    $(b.dataset.go).scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});
+  });
+});
+
+/* ---------- 문장 시작 도우미 ---------- */
+document.querySelectorAll('.starter').forEach(function(b){
+  b.addEventListener('click',function(){
+    var ta=$(b.dataset.for), t=b.dataset.t;
+    if(!ta.value.trim()) ta.value=t;
+    else if(ta.value.indexOf(t.trim())!==0) ta.value=ta.value.replace(/\s*$/,' ')+t;
+    ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length);
+    changed();
+  });
+});
+
+/* ---------- 빈칸 채우기 ---------- */
+document.querySelectorAll('[data-fill]').forEach(function(box){
+  var key=box.dataset.fill;
+  var blanks=Array.prototype.slice.call(box.querySelectorAll('.blank'));
+  var msg=box.querySelector('.fb');
+  var active=0;
+  function vals(){ if(!Array.isArray(S.fill[key])||S.fill[key].length!==blanks.length) S.fill[key]=blanks.map(function(){return ''}); return S.fill[key]; }
+  function firstOpen(){ var v=vals(); for(var i=0;i<blanks.length;i++){ if(v[i]!==blanks[i].dataset.a) return i; } return -1; }
+  function say(text,cls){ msg.textContent=text; msg.className='fb'+(cls?' '+cls:''); }
+  function paint(){
+    var v=vals();
+    blanks.forEach(function(b,i){
+      var right=(v[i]===b.dataset.a);
+      b.textContent=v[i]||' ';
+      b.classList.toggle('ok',right);
+      b.classList.toggle('no',!!v[i]&&!right);
+      b.classList.toggle('on',i===active&&!right);
+      b.setAttribute('aria-label',(i+1)+'번 빈칸'+(v[i]?': '+v[i]:''));
+    });
+  }
+  blanks.forEach(function(b,i){
+    b.addEventListener('click',function(){
+      var v=vals(); if(v[i]===b.dataset.a) return;
+      active=i; v[i]=''; say('아래 낱말 중에서 하나를 골라 보세요.'); paint(); changed();
+    });
+  });
+  box.querySelector('.bank').addEventListener('click',function(e){
+    var w=e.target.closest('button'); if(!w) return;
+    if(active<0){ say('빈칸을 모두 알맞게 채웠어요!','good'); return; }
+    var v=vals(); v[active]=w.dataset.w;
+    if(w.dataset.w===blanks[active].dataset.a){
+      active=firstOpen();
+      say(active<0?'빈칸을 모두 알맞게 채웠어요!':'맞았어요! 다음 빈칸도 채워 보세요.','good');
+    } else say('문장을 다시 읽고, 다른 낱말을 골라 볼까요?','again');
+    paint(); changed();
+  });
+  function reset(){ active=firstOpen(); say(active<0?'빈칸을 모두 알맞게 채웠어요!':'', active<0?'good':''); paint(); }
+  reset(); repaint.push(reset);
+});
+function fillDone(key){
+  var box=document.querySelector('[data-fill="'+key+'"]'); var v=S.fill[key]||[];
+  return Array.prototype.every.call(box.querySelectorAll('.blank'),function(b,i){return v[i]===b.dataset.a});
+}
+
+/* ---------- 연결하기 ---------- */
+var NS='http://www.w3.org/2000/svg';
+document.querySelectorAll('[data-match]').forEach(function(box){
+  var key=box.dataset.match;
+  var grid=box.querySelector('.mgrid'), svg=box.querySelector('svg'), msg=box.querySelector('.fb');
+  var L=Array.prototype.slice.call(box.querySelectorAll('.mleft button'));
+  var R=Array.prototype.slice.call(box.querySelectorAll('.mright button'));
+  var pick=null;
+  function links(){ if(!S.match[key]||typeof S.match[key]!=='object') S.match[key]={}; return S.match[key]; }
+  function say(text,cls){ msg.textContent=text; msg.className='fb'+(cls?' '+cls:''); }
+  function draw(){
+    var m=links(), g=grid.getBoundingClientRect();
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    L.concat(R).forEach(function(b){ b.classList.remove('ok','no','sel'); });
+    Object.keys(m).forEach(function(l){
+      var a=L.filter(function(b){return b.dataset.id===l})[0], b=R.filter(function(x){return x.dataset.id===m[l]})[0];
+      if(!a||!b) return;
+      var ok=(l===m[l]), ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
+      var color=getComputedStyle(document.documentElement).getPropertyValue(ok?'--ok':'--retry').trim();
+      var x1=ra.right-g.left, y1=ra.top+ra.height/2-g.top, x2=rb.left-g.left, y2=rb.top+rb.height/2-g.top;
+      var ln=document.createElementNS(NS,'line');
+      ln.setAttribute('x1',x1);ln.setAttribute('y1',y1);ln.setAttribute('x2',x2);ln.setAttribute('y2',y2);
+      ln.setAttribute('stroke',color);ln.setAttribute('stroke-width','5');ln.setAttribute('stroke-linecap','round');
+      if(!ok) ln.setAttribute('stroke-dasharray','2 10');
+      svg.appendChild(ln);
+      [[x1,y1],[x2,y2]].forEach(function(p){ var c=document.createElementNS(NS,'circle'); c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r','7');c.setAttribute('fill',color); svg.appendChild(c); });
+      a.classList.add(ok?'ok':'no'); b.classList.add(ok?'ok':'no');
+    });
+    if(pick){ var list=pick.side==='L'?L:R; list.forEach(function(b){ if(b.dataset.id===pick.id) b.classList.add('sel'); }); }
+  }
+  function status(){
+    var m=links(), ks=Object.keys(m);
+    if(pick){ say(pick.side==='L'?'이제 오른쪽에서 알맞은 것을 눌러요.':'이제 왼쪽에서 알맞은 것을 눌러요.'); return; }
+    if(ks.some(function(l){return m[l]!==l})){ say('점선으로 이어진 것을 다시 이어 볼까요?','again'); return; }
+    if(ks.length===L.length){ say('모두 알맞게 이었어요!','good'); return; }
+    say(ks.length?'잘했어요! 나머지도 이어 보세요.':'', ks.length?'good':'');
+  }
+  function connect(l,r){
+    var m=links();
+    Object.keys(m).forEach(function(k){ if(m[k]===r) delete m[k]; });
+    m[l]=r;
+  }
+  function tap(side,id){
+    var m=links();
+    if(pick&&pick.side!==side){ if(side==='R') connect(pick.id,id); else connect(id,pick.id); pick=null; }
+    else if(pick&&pick.id===id){ pick=null; }
+    else {
+      if(side==='L') delete m[id]; else Object.keys(m).forEach(function(k){ if(m[k]===id) delete m[k]; });
+      pick={side:side,id:id};
+    }
+    draw(); status(); changed();
+  }
+  L.forEach(function(b){ b.addEventListener('click',function(){tap('L',b.dataset.id)}); });
+  R.forEach(function(b){ b.addEventListener('click',function(){tap('R',b.dataset.id)}); });
+  function reset(){ pick=null; draw(); status(); }
+  reset(); repaint.push(reset);
+  if(window.ResizeObserver) new ResizeObserver(draw).observe(grid); else window.addEventListener('resize',draw);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(draw);
+});
+function matchDone(key){
+  var box=document.querySelector('[data-match="'+key+'"]'), m=S.match[key]||{};
+  return Array.prototype.every.call(box.querySelectorAll('.mleft button'),function(b){return m[b.dataset.id]===b.dataset.id});
+}
+
+/* ---------- 사진 ---------- */
+function shrink(file){
+  return new Promise(function(res,rej){
+    var url=URL.createObjectURL(file), im=new Image();
+    im.onload=function(){
+      try{
+        var s=Math.min(1,1100/Math.max(im.naturalWidth,im.naturalHeight));
+        var c=document.createElement('canvas');
+        c.width=Math.max(1,Math.round(im.naturalWidth*s)); c.height=Math.max(1,Math.round(im.naturalHeight*s));
+        var x=c.getContext('2d'); x.fillStyle='#ffffff'; x.fillRect(0,0,c.width,c.height); x.drawImage(im,0,0,c.width,c.height);
+        res(c.toDataURL('image/jpeg',0.85));
+      }catch(e){ rej(e); }
+      URL.revokeObjectURL(url);
+    };
+    im.onerror=function(){ URL.revokeObjectURL(url); rej(new Error('image')); };
+    im.src=url;
+  });
+}
+document.querySelectorAll('[data-photo]').forEach(function(slot){
+  var key=slot.dataset.photo;
+  var frame=slot.querySelector('.frame'), input=slot.querySelector('input'), img=slot.querySelector('img');
+  var empty=slot.querySelector('.ph-empty'), actions=slot.querySelector('.photo-actions'), msg=slot.querySelector('.ph-msg');
+  function paint(){
+    var has=!!S.photo[key];
+    if(has) img.src=S.photo[key]; else img.removeAttribute('src');
+    img.hidden=!has; empty.hidden=has; actions.hidden=!has; frame.classList.toggle('has',has);
+  }
+  input.addEventListener('change',function(){
+    var file=input.files&&input.files[0]; if(!file) return;
+    msg.hidden=true;
+    shrink(file).then(function(data){ S.photo[key]=data; paint(); changed(); })
+      .catch(function(){ msg.textContent='이 사진은 열 수 없어요. 다른 사진을 골라 주세요.'; msg.hidden=false; })
+      .then(function(){ input.value=''; });
+  });
+  slot.querySelector('.ph-del').addEventListener('click',function(){ S.photo[key]=''; paint(); changed(); });
+  paint(); repaint.push(paint);
+});
+
+/* ---------- 빈 곳 확인 ---------- */
+var STEPS=[
+  {id:'sec-q',name:'① 탐구 질문'},{id:'sec-s',name:'② 실험 상황'},{id:'sec-p',name:'③ 나의 예측'},
+  {id:'sec-w',name:'④ 예측한 이유'},{id:'sec-c',name:'⑤ 실험 후 확인할 점'}
+];
+function leftCounts(){
+  var F=readForm();
+  function t(k){ return !!(F[k]&&String(F[k]).trim()); }
+  function any(ks){ return ks.some(function(k){return !!F[k]}); }
+  var need=[
+    [matchDone('m0')],
+    [fillDone('f1'),matchDone('m2'),!!S.photo.root,!!S.photo.stem,t('r_len'),t('r_rootlen'),t('r_shape'),t('l_color'),t('l_bloom'),t('l_stem')],
+    [t('p_r_with'),t('p_r_cut'),t('p_r_text'),t('p_l_red'),t('p_l_water'),t('p_l_text')],
+    [t('w_r'),t('w_l')],
+    [any(['c_r_1','c_r_2','c_r_3'])||t('c_r_own'),any(['c_l_1','c_l_2','c_l_3'])||t('c_l_own')]
+  ];
+  return need.map(function(a){ return a.filter(function(x){return !x}).length; });
+}
+function updateProgress(){ updateProgress0(); syncTheme(); }
+function updateProgress0(){
+  var left=leftCounts(), pills=document.querySelectorAll('.track button'), list=$('leftList');
+  list.textContent='';
+  var total=0;
+  left.forEach(function(n,i){
+    total+=n;
+    pills[i].classList.toggle('done',n===0);
+    pills[i].querySelector('.n').textContent=(n===0?'✓':String(i+1));
+    if(n>0){
+      var li=document.createElement('li'), b=document.createElement('button');
+      b.type='button'; b.textContent=STEPS[i].name+' · '+n+'곳';
+      b.addEventListener('click',function(){ $(STEPS[i].id).scrollIntoView({block:'start'}); });
+      li.appendChild(b); list.appendChild(li);
+    }
+  });
+  $('leftMsg').textContent=total===0?'모두 다 썼어요! 이제 이미지로 만들어 보세요.':'아직 비어 있는 곳이 있어요. 눌러서 가 볼 수 있어요. 지금 이미지로 만들어도 괜찮아요.';
+}
+
+/* ---------- 종합 예측지 그리기 (캔버스) ---------- */
+function css(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+var FB=', "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR", sans-serif';
+function fBody(size,w){ return (w||400)+' '+size+'px "Nanum Gothic"'+FB; }
+function fDisp(size){ return '400 '+size+'px Jua, "Nanum Gothic"'+FB; }
+var mctx=document.createElement('canvas').getContext('2d');
+function wrap(segs,maxW){
+  var lines=[],cur=[],w=0;
+  function push(){ lines.push(cur); cur=[]; w=0; }
+  segs.forEach(function(sg){
+    mctx.font=sg.font;
+    String(sg.text).split('\n').forEach(function(part,pi){
+      if(pi>0) push();
+      part.split(/(\s+)/).forEach(function(tok){
+        if(tok==='') return;
+        var tw=mctx.measureText(tok).width;
+        if(/^\s+$/.test(tok)){ if(cur.length){ cur.push({text:tok,w:tw,sg:sg}); w+=tw; } return; }
+        if(w+tw>maxW&&cur.length) push();
+        if(tw<=maxW){ cur.push({text:tok,w:tw,sg:sg}); w+=tw; return; }
+        var buf='',bw=0;
+        Array.from(tok).forEach(function(ch){
+          var cw=mctx.measureText(ch).width;
+          if(w+bw+cw>maxW&&(bw>0||cur.length)){ if(buf) cur.push({text:buf,w:bw,sg:sg}); push(); buf='';bw=0; }
+          buf+=ch; bw+=cw;
+        });
+        if(buf){ cur.push({text:buf,w:bw,sg:sg}); w+=bw; }
+      });
+    });
+  });
+  if(cur.length||!lines.length) lines.push(cur);
+  return lines;
+}
+function rrect(c,x,y,w,h,r){
+  c.beginPath();
+  if(c.roundRect) c.roundRect(x,y,w,h,r); else c.rect(x,y,w,h);
+}
+var PH=270;
+function layout(blocks,maxW,C){
+  var y=0,draws=[];
+  blocks.forEach(function(b){
+    y+=(b.gap||0);
+    var y0=y;
+    if(b.type==='photo'){
+      draws.push(function(c,x,Y){
+        c.fillStyle=C.paper2; rrect(c,x,Y+y0,maxW,PH,10); c.fill();
+        if(b.img){
+          var s=Math.min(maxW/b.img.naturalWidth,PH/b.img.naturalHeight), iw=b.img.naturalWidth*s, ih=b.img.naturalHeight*s;
+          c.drawImage(b.img,x+(maxW-iw)/2,Y+y0+(PH-ih)/2,iw,ih);
+        } else {
+          c.font=fBody(18,700); c.fillStyle=C.empty; c.textAlign='center'; c.fillText(b.label,x+maxW/2,Y+y0+PH/2+6); c.textAlign='left';
+        }
+      });
+      y+=PH+12; return;
+    }
+    var ind=b.indent||0, lh=b.lh||30, lines=wrap(b.segs,maxW-ind);
+    draws.push(function(c,x,Y){
+      if(b.box){
+        c.lineWidth=2; c.strokeStyle=b.box.on?b.box.color:C.soft; c.fillStyle=b.box.on?b.box.color:'#ffffff';
+        rrect(c,x+1,Y+y0+(lh-20)/2,20,20,4); c.fill(); c.stroke();
+        if(b.box.on){ c.strokeStyle='#ffffff'; c.lineWidth=3; c.lineCap='round'; c.lineJoin='round'; c.beginPath();
+          var bx=x+1,by=Y+y0+(lh-20)/2; c.moveTo(bx+4.5,by+10.5); c.lineTo(bx+8.5,by+14.5); c.lineTo(bx+15.5,by+5.5); c.stroke(); }
+      }
+      if(b.bullet){ c.font=fBody(19,800); c.fillStyle=C.soft; c.fillText(b.bullet,x,Y+y0+lh*0.72); }
+      lines.forEach(function(ln,i){
+        var cx=x+ind, base=Y+y0+i*lh+lh*0.72;
+        ln.forEach(function(r){
+          c.font=r.sg.font; c.fillStyle=r.sg.color; c.fillText(r.text,cx,base);
+          if(r.sg.u) c.fillRect(cx,base+5,r.w,2.5);
+          cx+=r.w;
+        });
+      });
+    });
+    y+=lines.length*lh;
+  });
+  return {h:y,draw:function(c,x,Y){ draws.forEach(function(d){d(c,x,Y)}); }};
+}
+function renderSheet(imgs){
+  var F=readForm();
+  var C={night:css('--night'),paper2:css('--paper-2'),ink:css('--ink'),soft:css('--ink-soft'),line:css('--line'),spark:css('--spark'),sparkInk:css('--spark-ink'),
+         root:css('--root'),stem:css('--stem'),onSoft:css('--on-night-soft'),empty:'#96a0bd'};
+  function v(k){ return F[k]==null?'':String(F[k]).trim(); }
+  function seg(text,o){ o=o||{}; return {text:text,font:o.font||fBody(19,o.w||400),color:o.color||C.ink,u:!!o.u}; }
+  function valSeg(k,unit,o){ return v(k)?seg(v(k)+(unit||''),o):seg('아직 쓰지 않았어요',{color:C.empty}); }
+  function KV(label,k,unit,big){ return {segs:[seg(label+'  ',{w:800,color:C.soft}),valSeg(k,unit,big?{font:fBody(20,800)}:null)],gap:4}; }
+  function H(text){ return {segs:[seg(text,{font:fBody(17,800),color:C.soft})],gap:14,lh:28}; }
+  function P(k){ return {segs:[valSeg(k)]}; }
+  function Q(text){ return {segs:[seg(text,{font:fDisp(25)})],lh:35}; }
+  function LI(n,segs){ return {segs:segs,bullet:n+'.',indent:26}; }
+  function fillItems(key){
+    var box=document.querySelector('[data-fill="'+key+'"]'), vals=S.fill[key]||[], n=0, out=[];
+    box.querySelectorAll('ol li').forEach(function(li,i){
+      var segs=[];
+      li.childNodes.forEach(function(nd){
+        if(nd.nodeType===3) segs.push(seg(nd.textContent.replace(/\s+/g,' ')));
+        else if(nd.classList&&nd.classList.contains('blank')){ if(vals[n]) segs.push(seg(vals[n],{w:800,u:true})); else segs.push(seg('(       )',{color:C.empty})); n++; }
+      });
+      if(segs.length&&segs[0].text.charAt(0)!=='(') segs[0].text=segs[0].text.replace(/^\s+/,'');
+      out.push(LI(i+1,segs));
+    });
+    return out;
+  }
+  function matchItems(key){
+    var box=document.querySelector('[data-match="'+key+'"]'), m=S.match[key]||{}, out=[];
+    box.querySelectorAll('.mleft button').forEach(function(b){
+      var r=m[b.dataset.id], rb=r?box.querySelector('.mright button[data-id="'+r+'"]'):null;
+      out.push({segs:[seg(b.textContent+'  →  ',{w:800}), rb?seg(rb.textContent):seg('아직 잇지 않았어요',{color:C.empty})],bullet:'·',indent:18});
+    });
+    return out;
+  }
+  function checks(ids,color,own){
+    var out=ids.map(function(id){
+      return {segs:[seg(document.querySelector('label[for="'+id+'"] span').textContent)],box:{on:!!F[id],color:color},indent:32,gap:6};
+    });
+    if(v(own)){ out.push(H('더 확인하고 싶은 것')); out.push(P(own)); }
+    return out;
+  }
+  var rows=[
+    {n:'1',name:['탐구 질문'],a:[Q('뿌리는 식물에서 어떤 일을 할까?')],b:[Q('줄기는 식물에서 어떤 일을 할까?')]},
+    {n:'2',name:['실험 상황'],
+      a:[{type:'photo',img:imgs.root,label:'처음 대파 사진 없음'},KV('대파의 길이','r_len',' cm'),KV('뿌리의 길이','r_rootlen',' cm'),KV('뿌리의 생김새','r_shape'),H('실험 방법')].concat(fillItems('f1')),
+      b:[{type:'photo',img:imgs.stem,label:'처음 백합 사진 없음'},KV('꽃의 색깔','l_color'),KV('꽃의 모양','l_bloom'),KV('줄기의 생김새','l_stem'),H('실험 방법'),
+         LI(1,[seg('백합 한 송이는 물에, 다른 한 송이는 붉은 색소 물에 꽂아요.')]),LI(2,[seg('백합 꽃이 어떻게 변하는지 살펴봐요.')]),LI(3,[seg('줄기를 잘라서 자른 면을 돋보기로 살펴봐요.')]),H('실험 도구')].concat(matchItems('m2'))},
+    {n:'3',name:['나의 예측'],
+      a:[KV('뿌리가 있는 대파 컵의 물은','p_r_with','',true),KV('뿌리를 자른 대파 컵의 물은','p_r_cut','',true),H('나의 예측 문장'),P('p_r_text')],
+      b:[KV('붉은 색소 물에 꽂은 백합 꽃은','p_l_red','',true),KV('물에 꽂은 백합 꽃은','p_l_water','',true),H('나의 예측 문장'),P('p_l_text')]},
+    {n:'4',name:['예측한 이유'],a:[P('w_r')],b:[P('w_l')]},
+    {n:'5',name:['실험 후','확인할 점'],a:checks(['c_r_1','c_r_2','c_r_3'],C.root,'c_r_own'),b:checks(['c_l_1','c_l_2','c_l_3'],C.stem,'c_l_own')}
+  ];
+  var W=1100,SW=128,CW=(W-SW)/2,PAD=20,HEAD=150,COLH=54,FOOT=48;
+  var total=HEAD+COLH;
+  rows.forEach(function(r){
+    r.la=layout(r.a,CW-PAD*2,C); r.lb=layout(r.b,CW-PAD*2,C);
+    r.h=Math.max(r.la.h,r.lb.h,r.name.length*26+52)+PAD*2; total+=r.h;
+  });
+  total+=FOOT;
+  var scale=1.6, cv=document.createElement('canvas');
+  cv.width=Math.round(W*scale); cv.height=Math.round(total*scale);
+  var c=cv.getContext('2d'); c.scale(scale,scale); c.textBaseline='alphabetic';
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,total);
+  /* 머리말 */
+  c.fillStyle=C.night; c.fillRect(0,0,W,HEAD);
+  c.fillStyle='#ffffff'; c.font=fDisp(56); c.fillText('탐구 예측지',40,82);
+  c.fillStyle=C.onSoft; c.font=fBody(21,700); c.fillText('식물의 뿌리와 줄기는 어떤 일을 할까?',40,120);
+  var who=[v('school'),v('who')].filter(Boolean).join(' · ')||'이름을 쓰지 않았어요';
+  c.textAlign='right'; c.fillStyle='#ffffff'; c.font=fBody(22,800); c.fillText(who,W-40,86);
+  c.fillStyle=C.onSoft; c.font=fBody(20,700); c.fillText(v('day'),W-40,120); c.textAlign='left';
+  /* 실험 이름 줄 */
+  var y=HEAD;
+  c.fillStyle=C.paper2; c.fillRect(0,y,SW,COLH);
+  c.fillStyle=C.root; c.fillRect(SW,y,CW,COLH); c.fillStyle=C.stem; c.fillRect(SW+CW,y,CW,COLH);
+  c.fillStyle='#ffffff'; c.font=fDisp(26); c.fillText('대파 뿌리 실험',SW+PAD,y+36); c.fillText('백합 줄기 실험',SW+CW+PAD,y+36);
+  y+=COLH;
+  rows.forEach(function(r){
+    c.fillStyle=C.paper2; c.fillRect(0,y,SW,r.h);
+    c.fillStyle=C.spark; c.beginPath(); c.arc(SW/2,y+PAD+20,20,0,6.2832); c.fill();
+    c.textAlign='center'; c.fillStyle=C.sparkInk; c.font=fDisp(26); c.fillText(r.n,SW/2,y+PAD+29);
+    c.fillStyle=C.ink; c.font=fDisp(21);
+    r.name.forEach(function(t,i){ c.fillText(t,SW/2,y+PAD+70+i*26); });
+    c.textAlign='left';
+    r.la.draw(c,SW+PAD,y+PAD); r.lb.draw(c,SW+CW+PAD,y+PAD);
+    c.fillStyle=C.line; c.fillRect(0,y+r.h-2,W,2); c.fillRect(SW-1,y,2,r.h); c.fillRect(SW+CW-1,y,2,r.h);
+    y+=r.h;
+  });
+  c.fillStyle=C.paper2; c.fillRect(0,y,W,FOOT);
+  c.fillStyle=C.soft; c.font=fBody(16,700); c.fillText('과학 · 식물의 구조와 기능 · 공동 실험 수업',40,y+30);
+  return cv;
+}
+function loadImg(src){
+  return new Promise(function(res){
+    if(!src){ res(null); return; }
+    var im=new Image(); im.onload=function(){res(im)}; im.onerror=function(){res(null)}; im.src=src;
+  });
+}
+function fontsReady(){
+  if(!document.fonts||!document.fonts.load) return Promise.resolve();
+  var want=Promise.all([document.fonts.load(fBody(19,400),'가'),document.fonts.load(fBody(19,800),'가'),document.fonts.load(fDisp(26),'가')]).catch(function(){});
+  return Promise.race([want,new Promise(function(r){setTimeout(r,2500)})]);
+}
+
+var lastCanvas=null;
+var dlReady=null;
+try{ if(window.claude&&typeof window.claude.use==='function') dlReady=window.claude.use('downloads'); }catch(e){}
+function fileName(){ var n=($('who').value||'').trim().replace(/[\\/:*?"<>|]/g,''); return '탐구예측지'+(n?'_'+n:'')+'.png'; }
+
+$('make').addEventListener('click',function(){
+  var btn=$('make'), msg=$('makeMsg'); msg.hidden=true;
+  store();
+  btn.disabled=true; btn.textContent='만드는 중이에요…';
+  Promise.all([loadImg(S.photo.root),loadImg(S.photo.stem),fontsReady()]).then(function(r){
+    var canvas=renderSheet({root:r[0],stem:r[1]});
+    lastCanvas=canvas;
+    $('shot').src=canvas.toDataURL('image/png');
+    $('saveMsg').className='fb';
+    $('saveMsg').textContent='저장이 안 되면 그림을 길게 누르거나 마우스 오른쪽 버튼을 눌러 저장할 수 있어요.';
+    $('modal').hidden=false; $('save').focus();
+  }).catch(function(){
+    msg.textContent='이미지를 만들지 못했어요. 다시 한번 눌러 주세요.'; msg.hidden=false;
+  }).then(function(){
+    btn.disabled=false; btn.textContent='이미지로 만들기';
+  });
+});
+function closeModal(){ $('modal').hidden=true; $('make').focus(); }
+$('close').addEventListener('click',closeModal);
+$('modal').addEventListener('click',function(e){ if(e.target===$('modal')) closeModal(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!$('modal').hidden) closeModal(); });
+
+$('save').addEventListener('click',function(){
+  if(!lastCanvas) return;
+  var msg=$('saveMsg'), name=fileName();
+  function say(t,c){ msg.textContent=t; msg.className='fb'+(c?' '+c:''); }
+  lastCanvas.toBlob(function(blob){
+    if(!blob){ say('그림을 길게 누르거나 마우스 오른쪽 버튼을 눌러 저장해 주세요.','again'); return; }
+    function plain(){
+      try{
+        var a=document.createElement('a');
+        a.href=lastCanvas.toDataURL('image/png'); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+      }catch(e){}
+      say('저장을 시작했어요. 저장이 안 되면 그림을 길게 누르거나 마우스 오른쪽 버튼을 눌러 저장해 주세요.');
+    }
+    if(!dlReady){ plain(); return; }
+    say('저장 창을 여는 중이에요…');
+    dlReady.then(function(dl){
+      if(!dl){ plain(); return; }
+      return dl.save({filename:name,data:blob}).then(function(){ say('이미지를 저장했어요!','good'); })
+        .catch(function(err){
+          if(err&&err.code==='declined') say('저장을 취소했어요. 다시 저장하려면 버튼을 눌러요.');
+          else if(err&&err.code==='rate_limited') say('잠깐 기다렸다가 다시 눌러 주세요.','again');
+          else say('그림을 길게 누르거나 마우스 오른쪽 버튼을 눌러 저장해 주세요.','again');
+        });
+    }).catch(plain);
+  },'image/png');
+});
+
+/* ---------- 처음부터 다시 ---------- */
+$('reset').addEventListener('click',function(){ $('resetConfirm').hidden=false; $('resetNo').focus(); });
+$('resetNo').addEventListener('click',function(){ $('resetConfirm').hidden=true; });
+$('resetYes').addEventListener('click',function(){
+  S.form={};S.fill={};S.match={};S.photo={root:'',stem:''};
+  form.reset(); $('day').value=today();
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  repaint.forEach(function(fn){fn()});
+  $('resetConfirm').hidden=true; updateProgress();
+  window.scrollTo(0,0);
+});
+
+updateProgress();
+
+/* ---------- 배경: 떠오르는 방울과 물음표 ---------- */
+(function(){
+  var c=$('bg'), x=c.getContext('2d'); if(!x) return;
+  var still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W=0,H=0,dpr=1,items=[],raf=0;
+  var spark=getComputedStyle(document.documentElement).getPropertyValue('--spark').trim()||'#ffc83d';
+  function rnd(a,b){ return a+Math.random()*(b-a); }
+  function make(anyY){
+    var kind=Math.random(); kind=kind<.55?'bubble':(kind<.8?'q':'plus');
+    return {kind:kind,x:rnd(0,W),y:anyY?rnd(0,H):H+40,r:rnd(6,22),v:rnd(.12,.4),sway:rnd(0,6.28),warm:Math.random()<.3,a:rnd(.1,.26)};
+  }
+  function size(){
+    dpr=Math.min(window.devicePixelRatio||1,2); W=window.innerWidth; H=window.innerHeight;
+    c.width=Math.round(W*dpr); c.height=Math.round(H*dpr); x.setTransform(dpr,0,0,dpr,0,0);
+    var n=Math.max(14,Math.min(34,Math.round(W*H/36000)));
+    items=[]; for(var i=0;i<n;i++) items.push(make(true));
+    draw();
+  }
+  function draw(){
+    x.clearRect(0,0,W,H);
+    items.forEach(function(p){
+      var px=p.x+Math.sin(p.sway)*10;
+      x.globalAlpha=p.a; x.strokeStyle=x.fillStyle=p.warm?spark:'#ffffff'; x.lineWidth=2;
+      if(p.kind==='bubble'){
+        x.beginPath(); x.arc(px,p.y,p.r,0,6.283); x.stroke();
+        x.beginPath(); x.arc(px-p.r*.35,p.y-p.r*.35,Math.max(1.5,p.r*.16),0,6.283); x.fill();
+      } else if(p.kind==='q'){
+        x.font=Math.round(p.r*2.2)+'px Jua, sans-serif'; x.textAlign='center'; x.textBaseline='middle'; x.fillText('?',px,p.y);
+      } else {
+        var s=p.r*.5; x.beginPath(); x.moveTo(px-s,p.y); x.lineTo(px+s,p.y); x.moveTo(px,p.y-s); x.lineTo(px,p.y+s); x.stroke();
+      }
+    });
+    x.globalAlpha=1;
+  }
+  function tick(){
+    items.forEach(function(p,i){ p.y-=p.v; p.sway+=.008; if(p.y<-50) items[i]=make(false); });
+    draw(); raf=requestAnimationFrame(tick);
+  }
+  window.addEventListener('resize',size);
+  size();
+  if(!still){
+    raf=requestAnimationFrame(tick);
+    document.addEventListener('visibilitychange',function(){
+      cancelAnimationFrame(raf); if(!document.hidden) raf=requestAnimationFrame(tick);
+    });
+  }
+})();
+
+/* ===== 과학 탐험 테마: 미션 완료 표시 ===== */
+var allDone;
+function syncTheme(){
+  var btns=document.querySelectorAll('[data-go]'), n=0;
+  btns.forEach(function(b){ var sec=document.getElementById(b.dataset.go); var d=b.classList.contains('done'); if(sec) sec.classList.toggle('done',d); if(d) n++; });
+  var fin=document.querySelector('.finish'), h=fin&&fin.querySelector('h2'), all=btns.length>0&&n===btns.length;
+  if(h){ if(!h.dataset.t) h.dataset.t=h.textContent; h.textContent=all?'미션 완료!':h.dataset.t; }
+  if(fin) fin.classList.toggle('all',all);
+  if(allDone===false&&all) confetti();
+  allDone=all;
+}
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var c=document.createElement('canvas'); c.id='confetti'; document.body.appendChild(c);
+  var x=c.getContext('2d'), W=c.width=innerWidth, H=c.height=innerHeight, cols=['#ffc83d','#5cc26b','#6a4be0','#4aa8ff','#ff7a59','#ffffff'], P=[];
+  for(var i=0;i<140;i++) P.push({x:W/2+(Math.random()-.5)*W*.3,y:H*.55,vx:(Math.random()-.5)*14,vy:-Math.random()*16-6,r:Math.random()*6+4,a:Math.random()*6,va:(Math.random()-.5)*.4,c:cols[i%cols.length]});
+  var t0=performance.now();
+  (function f(t){ x.clearRect(0,0,W,H);
+    P.forEach(function(p){ p.vy+=.45; p.vx*=.99; p.x+=p.vx; p.y+=p.vy; p.a+=p.va; x.save(); x.translate(p.x,p.y); x.rotate(p.a); x.fillStyle=p.c; x.fillRect(-p.r,-p.r/2,p.r*2,p.r); x.restore(); });
+    if(t-t0<2600) requestAnimationFrame(f); else c.remove(); })(t0);
+}
+})();
+</script>
+</body></html>
